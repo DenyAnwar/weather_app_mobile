@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/services/location.dart';
-import 'package:http/http.dart' as http;
+import 'package:weather_app/screens/location_screen.dart';
+import 'package:weather_app/services/weather.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({Key? key}) : super(key: key);
@@ -13,33 +14,33 @@ class _LoadingScreenState extends State<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    getLocation();
-    print('this line of code is triggered');
+    getLocationData();
   }
 
-  void getLocation() async {
-    Location location = Location();
-    await location.getCurrentLocation();
-    print('latitude ' + location.latitude.toString());
-    print('longitude ' + location.longitude.toString());
-  }
+  void getLocationData() async {
+    var weatherData = await WeatherModel().getLocationWeather();
 
-  void getData() async {
-    String url =
-        'https://api.openweathermap.org/data/2.5/weather?q=Balikpapan&appid=b77340146fae68893e1f56b08d3190e9';
-    http.Response response = await http.get(Uri.parse(url) as Uri);
-
-    if (response.statusCode == 200) {
-      String data = response.body;
-      print(data);
-    } else {
-      print(response.statusCode);
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return LocationScreen(
+            locationWeather: weatherData,
+          );
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    getData();
-    return Scaffold();
+    return Scaffold(
+      body: Center(
+        child: SpinKitWaveSpinner(
+          color: Colors.white,
+          size: 80.0,
+        ),
+      ),
+    );
   }
 }
